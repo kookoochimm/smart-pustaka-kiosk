@@ -1,0 +1,282 @@
+.fine-screen {
+    min-height: 100vh;
+    width: 100%;
+
+    background-image: url("../assets/Background.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.fine-container {
+    position: relative;
+
+    width: 850px;
+    min-height: 600px;
+
+    background: rgba(255, 255, 255, 0.25);
+
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+
+    border-radius: 25px;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding: 50px;
+
+    box-sizing: border-box;
+}
+
+.logos {
+    position: absolute;
+
+    top: 10px;
+    left: 10px;
+    right: 10px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    z-index: 10;
+}
+
+.mara-logo {
+    width: 75px;
+    height: auto;
+    object-fit: contain;
+}
+
+.tvetmara-logo {
+    width: 150px;
+    height: auto;
+    object-fit: contain;
+}
+
+.fine-container h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #000000;
+    text-align: center;
+}
+
+.fine-container h2 {
+    margin: 8px 0;
+    font-size: 42px;
+    font-weight: 700;
+    color: #191970;
+}
+
+/* Main instruction */
+.fine-container h1 {
+    margin: 50px 0 0 0 !important;
+
+    font-size: 52px !important;
+    font-weight: 700 !important;
+
+    color: #8B0000 !important;
+
+    text-align: center !important;
+}
+
+/* Kotak putih: gambar dan maklumat buku */
+.fine-card {
+    width: 100%;
+    margin-top: 15px;
+
+    display: flex;
+    align-items: stretch;
+    gap: 25px;
+
+    background: #f5f5f5;
+    border-radius: 22px;
+    padding: 20px 30px;
+
+    box-sizing: border-box;
+}
+
+/* Bahagian gambar buku di sebelah kiri */
+.fine-book-image {
+    flex: 0 0 150px;
+    min-width: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.fine-book-figure {
+    display: block;
+
+    width: 100%;
+    height: auto;
+    max-height: 350px;
+
+    object-fit: contain;
+    object-position: center;
+
+    border-radius: 8px;
+}
+
+.fine-no-image {
+    color: #777;
+    font-size: 13px;
+    text-align: center;
+}
+
+/* Bahagian maklumat buku di sebelah kanan */
+.fine-info {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+
+    margin-top: 0;
+
+    border-radius: 15px;
+
+    background: transparent;
+
+    padding: 0;
+
+    box-sizing: border-box;
+}
+
+/* Setiap baris maklumat */
+.fine-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+
+    padding: 12px 0;
+
+    border-bottom: 1px solid #ddd;
+}
+
+.fine-info-row:last-child {
+    border-bottom: none;
+}
+
+.fine-info-label {
+    font-size: 15px;
+    font-weight: bold;
+
+    color: #000000;
+
+    flex-shrink: 0;
+}
+
+.fine-info-value {
+    font-size: 15px;
+    font-weight: normal;
+
+    color: #2F4F4F;
+
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+/* Returned Date + Late Days
+   Fine Value + Payment Status */
+.fine-paired-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+
+    padding: 12px 0;
+
+    border-bottom: 1px solid #ddd;
+}
+
+.fine-pair-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+
+    min-width: 0;
+}
+
+.fine-pair-item + .fine-pair-item {
+    border-left: 1px solid #ddd;
+    padding-left: 15px;
+}
+
+.fine-last-row {
+    border-bottom: none;
+}
+
+/* Status bayaran */
+.fine-payment-status {
+    font-size: 15px;
+    font-weight: bold;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.fine-payment-status.unpaid {
+    color: red;
+}
+
+.fine-payment-status.paid {
+    color: green;
+}
+
+/* Footer */
+.fine-slogan {
+    margin-top: 20px;
+
+    padding: 0;
+
+    font-size: 18px;
+    font-weight: 600;
+
+    color: #000000;
+}
+
+/* Paparan telefon */
+@media (max-width: 576px) {
+    .fine-card {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .fine-book-image {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+
+    .fine-book-figure {
+        width: auto;
+        max-width: 100%;
+        height: auto;
+        max-height: 200px;
+    }
+
+    .fine-paired-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .fine-pair-item + .fine-pair-item {
+        border-left: none;
+        padding-left: 0;
+    }
+
+    .fine-pair-item {
+        padding: 5px 0;
+    }
+}
