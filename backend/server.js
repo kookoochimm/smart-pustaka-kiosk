@@ -40,7 +40,26 @@ let activeBook = null;
 const normalizeUID = (v) => String(v ?? "").replace(/\s+/g, "").trim().toUpperCase();
 const setState = (patch) => Object.assign(state, patch, { updatedAt: Date.now() });
 const asyncRoute = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
-app.get("/api/health", (_req, res) => res.json({ status: "ok", service: "kiosk" }));
+app.get("/api/health", async (_req, res) => {
+  try {
+    await pool.query("SELECT 1");
+
+    res.json({
+      status: "ok",
+      service: "kiosk",
+      database: "connected"
+    });
+  } catch (error) {
+    console.error("Database connection failed:", error.message);
+
+    res.status(503).json({
+      status: "error",
+      service: "kiosk",
+      database: "disconnected",
+      message: error.message
+    });
+  }
+});
 app.get("/api/kiosk/state", (_req, res) => res.json(state));
 app.post("/api/kiosk/reset", (_req, res) => {
   activeUser = null; activeBook = null;
