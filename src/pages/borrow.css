@@ -1,0 +1,240 @@
+.borrow-screen {
+    min-height: 100vh;
+    width: 100%;
+
+    background-image: url("../assets/Background.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.borrow-container {
+    position: relative;
+
+    width: 850px;
+    min-height: 600px;
+
+    background: rgba(255, 255, 255, 0.25);
+
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+
+    border-radius: 25px;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding: 50px;
+
+    box-sizing: border-box;
+}
+
+.logos {
+    position: absolute;
+
+    top: 10px;
+    left: 10px;
+    right: 10px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    z-index: 10;
+}
+
+.mara-logo {
+    width: 75px;
+    height: auto;
+    object-fit: contain;
+}
+
+.tvetmara-logo {
+    width: 150px;
+    height: auto;
+    object-fit: contain;
+}
+
+.borrow-container h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #000000;
+    text-align: center;
+}
+
+.borrow-container h2 {
+    margin: 8px 0;
+    font-size: 42px;
+    font-weight: 700;
+    color: #191970;
+}
+
+.borrow-container h1 {
+    margin: 50px 0 0 0 !important;
+
+    font-size: 52px !important;
+    font-weight: 700 !important;
+
+    color: #8B0000 !important;
+
+    text-align: center !important;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 10px 0;
+
+  border-bottom: 1px solid #ddd;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 15px;
+  font-weight: bold;
+
+  color: #000000;
+}
+
+.info-value {
+  font-size: 15px;
+  font-weight: normal;
+
+  color: #2F4F4F;
+}
+
+.slogan {
+    margin-top: 45px;
+
+    padding: 0;
+
+    font-size: 18px;
+    font-weight: 600;
+
+    color: #000000;
+}
+
+.borrow-details {
+    width: 100%;
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+}
+
+/* Satu kotak putih untuk gambar dan maklumat */
+.borrow-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    width: 100%;
+    max-width: 750px;
+    padding: 20px;
+
+    background: #f5f5f5;
+    border-radius: 22px;
+    box-sizing: border-box;
+}
+
+/* Gambar buku di sebelah kiri */
+.borrow-book-image {
+    flex: 0 0 130px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 0;
+}
+
+.book-figure {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 240px;
+    object-fit: contain;
+    object-position: center;
+    border-radius: 8px;
+}
+
+/* Maklumat buku di sebelah kanan */
+.borrow-info {
+    flex: 1;
+    min-width: 0;
+    max-width: none;
+    margin-top: 0;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+    box-sizing: border-box;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    flex-shrink: 0;
+}
+
+.info-value {
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.no-book-image {
+    color: #777;
+    font-size: 13px;
+    text-align: center;
+}
+
+/* Responsive untuk telefon */
+@media (max-width: 576px) {
+    .borrow-card {
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .borrow-book-image {
+        flex: 0 0 80px;
+    }
+
+    .book-figure {
+        max-height: 180px;
+    }
+
+    .info-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        padding: 9px 0;
+    }
+
+    .info-label,
+    .info-value {
+        font-size: 13px;
+        text-align: left;
+    }
+}
