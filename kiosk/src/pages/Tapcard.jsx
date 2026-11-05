@@ -3,7 +3,7 @@ import "./tapcard.css";
 import maraLogo from "../assets/Mara.png";
 import tvetmaraLogo from "../assets/Tmsp.png";
 
-function Tapcard() {
+function Tapcard({ isVerifying = false }) {
     return (
         <div className="tapcard-screen container-fluid">
 
@@ -38,7 +38,11 @@ function Tapcard() {
                 <div className="row w-100 justify-content-center">
                     <div className="col-12 d-flex flex-column align-items-center text-center">
 
-                        <h1>TAP YOUR CARD</h1>
+                        <h1>
+                        {isVerifying
+                            ? "VERIFYING YOUR CARD"
+                            : "TAP YOUR CARD"}
+                        </h1>
                         <h3>at the reader</h3>
 
                         <div className="card-icon">
