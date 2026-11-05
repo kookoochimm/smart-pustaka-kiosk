@@ -40,26 +40,7 @@ let activeBook = null;
 const normalizeUID = (v) => String(v ?? "").replace(/\s+/g, "").trim().toUpperCase();
 const setState = (patch) => Object.assign(state, patch, { updatedAt: Date.now() });
 const asyncRoute = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
-app.get("/api/health", async (_req, res) => {
-  try {
-    await pool.query("SELECT 1");
-
-    res.json({
-      status: "ok",
-      service: "kiosk",
-      database: "connected"
-    });
-  } catch (error) {
-    console.error("Database connection failed:", error.message);
-
-    res.status(503).json({
-      status: "error",
-      service: "kiosk",
-      database: "disconnected",
-      message: error.message
-    });
-  }
-});
+app.get("/api/health", (_req, res) => res.json({ status: "ok", service: "kiosk" }));
 app.get("/api/kiosk/state", (_req, res) => res.json(state));
 app.post("/api/kiosk/reset", (_req, res) => {
   activeUser = null; activeBook = null;
@@ -71,6 +52,13 @@ app.post("/api/kiosk/reset", (_req, res) => {
 app.post("/api/kiosk/scan-user", asyncRoute(async (req, res) => {
   const uid = normalizeUID(req.body?.uid);
   if (!/^[0-9A-F]{8}$/.test(uid)) return res.status(400).json({ success: false, message: "Invalid user card UID." });
+    setState({
+    screen: "verifying",
+    user: null,
+    book: null,
+    transaction: null,
+    error: null
+  });
   const [users] = await pool.query("SELECT user_id, uid, fullname, username, matric_number, role, program, is_deleted FROM users WHERE uid=? LIMIT 1", [uid]);
   if (!users.length || Number(users[0].is_deleted) === 1) {
     activeUser = null;
