@@ -4,7 +4,7 @@ import "./tapbook.css";
 import maraLogo from "../assets/Mara.png";
 import tvetmaraLogo from "../assets/Tmsp.png";
 
-function Tapbook({ user }) {
+function Tapbook({ user, isVerifying = false  }) {
     return (
         <div className="tapbook-screen container-fluid">
             <div className="tapbook-container container">
@@ -41,7 +41,11 @@ function Tapbook({ user }) {
                 <div className="row w-100 justify-content-center">
                     <div className="col-12 d-flex flex-column align-items-center text-center">
 
-                        <h1>TAP BOOK'S STICKER</h1>
+                        <h1>
+                            {isVerifying
+                                ? "VERIFYING YOUR BOOK"
+                                : "TAP BOOK'S STICKER"}
+                        </h1>
 
                         <h3>at the reader</h3>
 
