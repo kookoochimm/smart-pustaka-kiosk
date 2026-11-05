@@ -126,71 +126,229 @@ app.post("/api/kiosk/scan-user", asyncRoute(async (req, res) => {
 // The kiosk ESP32 sends 14-character book-tag UIDs here.
 app.post("/api/books/scan-book", asyncRoute(async (req, res) => {
   const uid = normalizeUID(req.body?.uid);
-  if (!/^[0-9A-F]{14}$/.test(uid)) return res.status(400).json({ success: false, message: "Invalid book tag UID." });
+
+  if (!/^[0-9A-F]{14}$/.test(uid)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid book tag UID."
+    });
+  }
+
   if (!activeUser) {
-    setState({ screen: "error", error: "Scan a user card first." });
-    return res.status(409).json({ success: false, message: "Scan a user card first." });
+    setState({
+      screen: "error",
+      error: "Scan a user card first."
+    });
+
+    return res.status(409).json({
+      success: false,
+      message: "Scan a user card first."
+    });
   }
-  const [books] = await pool.query("SELECT * FROM books WHERE uid=? LIMIT 1", [uid]);
+
+  // Display book verification screen
+  setState({
+    screen: "verifyingBook",
+    user: activeUser,
+    book: null,
+    transaction: null,
+    error: null
+  });
+
+  // Allow frontend to display verification message
+  await wait(700);
+
+  // Verify book UID in database
+  const [books] = await pool.query(
+    "SELECT * FROM books WHERE uid=? LIMIT 1",
+    [uid]
+  );
+
   if (!books.length) {
-    setState({ screen: "error", error: "Book not found." });
-    return res.status(404).json({ success: false, message: "Book not found." });
+    setState({
+      screen: "error",
+      user: activeUser,
+      book: null,
+      transaction: null,
+      error: "Book not found."
+    });
+
+    return res.status(404).json({
+      success: false,
+      message: "Book not found."
+    });
   }
-  const book = books[0]; activeBook = book;
-  const [unpaid] = await pool.query("SELECT COALESCE(SUM(fine), 0) AS unpaid_total, FORMAT(COALESCE(SUM(fine), 0), 2) AS unpaid_total_display FROM borrow WHERE user_id=? AND fine>0 AND LOWER(TRIM(payment_status)) <> 'paid'", [activeUser.user_id]);
+
+  const book = books[0];
+  activeBook = book;
+
+  const [unpaid] = await pool.query(
+    `SELECT
+       COALESCE(SUM(fine), 0) AS unpaid_total,
+       FORMAT(COALESCE(SUM(fine), 0), 2) AS unpaid_total_display
+     FROM borrow
+     WHERE user_id = ?
+       AND fine > 0
+       AND LOWER(TRIM(payment_status)) <> 'paid'`,
+    [activeUser.user_id]
+  );
+
   const unpaidTotal = unpaid[0]?.unpaid_total || 0;
   const unpaidTotalDisplay = unpaid[0]?.unpaid_total_display || "0.00";
-  const [activeLoans] = await pool.query("SELECT * FROM borrow WHERE book_id=? AND return_date IS NULL ORDER BY borrow_id DESC LIMIT 1", [book.book_id]);
+
+  const [activeLoans] = await pool.query(
+    `SELECT *
+     FROM borrow
+     WHERE book_id = ? AND return_date IS NULL
+     ORDER BY borrow_id DESC
+     LIMIT 1`,
+    [book.book_id]
+  );
+
   if (activeLoans.length) {
     const loan = activeLoans[0];
 
-    // A user may only return a book borrowed under their own user_id.
     if (Number(loan.user_id) !== Number(activeUser.user_id)) {
       const message = "This book already been borrowed by other person";
+
       activeUser = null;
       activeBook = null;
-      setState({ screen: "error", user: null, book, transaction: null, error: message });
+
+      setState({
+        screen: "error",
+        user: null,
+        book,
+        transaction: null,
+        error: message
+      });
+
       return res.status(403).json({
         success: false,
         error: "BOOK_BORROWED_BY_OTHER_USER",
-        message,
+        message
       });
     }
 
-    // MySQL is the source of truth for return date, late days, fine, and payment status.
     await pool.query(`
       UPDATE borrow
       SET return_date = NOW(),
           late_days = GREATEST(DATEDIFF(CURDATE(), DATE(due_date)), 0),
           fine = ROUND(GREATEST(DATEDIFF(CURDATE(), DATE(due_date)), 0) * ?, 2),
           payment_status = CASE
-            WHEN GREATEST(DATEDIFF(CURDATE(), DATE(due_date)), 0) * ? > 0 THEN 'not pay'
+            WHEN GREATEST(DATEDIFF(CURDATE(), DATE(due_date)), 0) * ? > 0
+            THEN 'not pay'
             ELSE 'paid'
           END
       WHERE borrow_id = ? AND return_date IS NULL
     `, [FINE_PER_DAY, FINE_PER_DAY, loan.borrow_id]);
-    await pool.query("UPDATE books SET status='returned' WHERE book_id=?", [book.book_id]);
+
+    await pool.query(
+      "UPDATE books SET status='returned' WHERE book_id=?",
+      [book.book_id]
+    );
+
     const [savedTransactions] = await pool.query(
       "SELECT borrow.*, CASE WHEN fine > 0 THEN 1 ELSE 0 END AS has_fine FROM borrow WHERE borrow_id=? LIMIT 1",
       [loan.borrow_id]
     );
+
     const transaction = savedTransactions[0];
-    setState({ screen: "fines", user: activeUser, book, transaction, error: null });
-    activeUser = null; activeBook = null;
-    return res.json({ success: true, action: "return", transaction });
+
+    setState({
+      screen: "fines",
+      user: activeUser,
+      book,
+      transaction,
+      error: null
+    });
+
+    activeUser = null;
+    activeBook = null;
+
+    return res.json({
+      success: true,
+      action: "return",
+      transaction
+    });
   }
+
   if (unpaidTotal > 0) {
-    setState({ screen: "error", user: activeUser, book, transaction: null, error: `New borrowing is blocked because you have an outstanding fine of RM ${unpaidTotalDisplay}.` });
-    activeUser = null; activeBook = null;
-    return res.status(403).json({ success: false, message: "Outstanding fines prevent borrowing." });
+    setState({
+      screen: "error",
+      user: activeUser,
+      book,
+      transaction: null,
+      error: `New borrowing is blocked because you have an outstanding fine of RM ${unpaidTotalDisplay}.`
+    });
+
+    activeUser = null;
+    activeBook = null;
+
+    return res.status(403).json({
+      success: false,
+      message: "Outstanding fines prevent borrowing."
+    });
   }
-  const [insert] = await pool.query(`INSERT INTO borrow (user_id, book_id, username, matric_number, program, book_title, author, book_publisher, book_published, book_isbn, book_call_number, book_edition, book_page_count, borrow_date, due_date, return_date, late_days, fine, payment_status, synopsis, figure) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 14 DAY), NULL, 0, 0, 'paid', ?, ?)`, [activeUser.user_id, book.book_id, activeUser.username || activeUser.fullname, activeUser.matric_number || "-", activeUser.program || "-", book.title, book.author, book.publisher || "-", book.published || "-", book.isbn || "-", book.call_number || "-", book.edition || "-", book.page_count || 0, book.synopsis || null, book.figure || null]);
-  await pool.query("UPDATE books SET status='borrowed' WHERE book_id=?", [book.book_id]);
-  const [savedTransactions] = await pool.query("SELECT * FROM borrow WHERE borrow_id=? LIMIT 1", [insert.insertId]);
+
+  const [insert] = await pool.query(`
+    INSERT INTO borrow (
+      user_id, book_id, username, matric_number, program,
+      book_title, author, book_publisher, book_published,
+      book_isbn, book_call_number, book_edition, book_page_count,
+      borrow_date, due_date, return_date, late_days, fine,
+      payment_status, synopsis, figure
+    )
+    VALUES (
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+      NOW(), DATE_ADD(NOW(), INTERVAL 14 DAY),
+      NULL, 0, 0, 'paid', ?, ?
+    )
+  `, [
+    activeUser.user_id,
+    book.book_id,
+    activeUser.username || activeUser.fullname,
+    activeUser.matric_number || "-",
+    activeUser.program || "-",
+    book.title,
+    book.author,
+    book.publisher || "-",
+    book.published || "-",
+    book.isbn || "-",
+    book.call_number || "-",
+    book.edition || "-",
+    book.page_count || 0,
+    book.synopsis || null,
+    book.figure || null
+  ]);
+
+  await pool.query(
+    "UPDATE books SET status='borrowed' WHERE book_id=?",
+    [book.book_id]
+  );
+
+  const [savedTransactions] = await pool.query(
+    "SELECT * FROM borrow WHERE borrow_id=? LIMIT 1",
+    [insert.insertId]
+  );
+
   const transaction = savedTransactions[0];
-  setState({ screen: "borrow", user: activeUser, book, transaction, error: null });
-  activeUser = null; activeBook = null;
-  res.json({ success: true, action: "borrow", transaction });
+
+  setState({
+    screen: "borrow",
+    user: activeUser,
+    book,
+    transaction,
+    error: null
+  });
+
+  activeUser = null;
+  activeBook = null;
+
+  res.json({
+    success: true,
+    action: "borrow",
+    transaction
+  });
 }));
 
 app.use((err, _req, res, _next) => {
