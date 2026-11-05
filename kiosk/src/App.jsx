@@ -71,18 +71,46 @@ export default function App() {
 
         return () => clearTimeout(timeoutId);
     }, [state.screen, state.updatedAt]);
-
+ 
     switch (state.screen) {
         case "tapcard":
             return <TapCard />;
+    
+        case "verifying":
+            return <TapCard isVerifying={true} />;
+    
         case "tapbook":
             return <TapBook user={state.user} />;
+    
+        case "verifyingBook":
+            return (
+                <TapBook
+                    user={state.user}
+                    isVerifying={true}
+                />
+            );
+    
         case "borrow":
-            return <Borrow user={state.user} book={state.book} transaction={state.transaction} />;
+            return (
+                <Borrow
+                    user={state.user}
+                    book={state.book}
+                    transaction={state.transaction}
+                />
+            );
+    
         case "fines":
-            return <Fine user={state.user} book={state.book} transaction={state.transaction} />;
+            return (
+                <Fine
+                    user={state.user}
+                    book={state.book}
+                    transaction={state.transaction}
+                />
+            );
+    
         case "error":
             return <Error message={state.error} />;
+    
         default:
             return <TapCard />;
     }
