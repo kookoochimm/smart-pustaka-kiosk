@@ -42,8 +42,8 @@ const unsigned long SCAN_COOLDOWN_MS = 2500;
 
 // Windows Mobile Hotspot credentials
 
-const char* WIFI_SSID = "www";
-const char* WIFI_PASSWORD = "GIYUTOMIOKA";
+const char* WIFI_SSID = "YOUR_WIFI";
+const char* WIFI_PASSWORD = "YOUR_PASSWORD";
 
 bool connectWiFi() {
 
